@@ -51,8 +51,16 @@ def chat():
             return jsonify({'error': 'Message cannot be empty'}), 400
         
         if not client:
+            # Groq client is not configured (likely missing GROQ_API_KEY in the environment).
+            # Log a clear error for server admins, but return a user-friendly message to the UI.
+            logger.error("Groq client is not configured. Check GROQ_API_KEY in the environment.")
             return jsonify({
-                'error': 'Groq API not configured. Please set GROQ_API_KEY environment variable.'
+                'fallback': (
+                    "I'm currently unable to access my AI assistant features. "
+                    "Please try again in a little while or contact our team directly at "
+                    "contact@helpsphere.org for any questions about our services, donations, "
+                    "or volunteering."
+                )
             }), 500
         chat_history = data.get('history', [])
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
